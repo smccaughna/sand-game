@@ -8,9 +8,6 @@ void update_game();
 void close_game();
 static uint32_t calculate_fps(uint32_t, void*);
 
-const SDL_Color black = { 0x00, 0x00, 0x00, 0xFF };
-const SDL_Color white = { 0xFF, 0xFF, 0xFF, 0xFF };
-
 const int32_t max_framerate = 120;
 
 int32_t frames_per_second = 0;

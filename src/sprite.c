@@ -1,6 +1,5 @@
 #include "global.h"
 #include "sprite.h"
-#include "screen.h"
 
 int32_t load_media();
 void unload_media();
@@ -78,7 +77,7 @@ static int32_t load_font(const char* file, TTF_Font** font, int32_t size)
 
 int32_t create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** tex)
 {
-    SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(font, text, color, window_width);
+    SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(font, text, color, 0);
     if (surface == NULL)
     {
         printf("Failed to create surface: %s\n", TTF_GetError());
