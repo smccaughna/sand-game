@@ -22,7 +22,7 @@ const extern SDL_Color white;
 
 const extern int32_t max_framerate;
 extern int32_t frames_per_second;
-extern int32_t pause_simulation;
 extern uint32_t step;
 
+extern bool pause_simulation;
 extern bool lock_framerate;
