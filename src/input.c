@@ -10,10 +10,10 @@ void handle_input()
     while (SDL_PollEvent(&event))
     {
         if (event.type == SDL_QUIT)
-            close_game();
+            exit(0);
         if (event.type == SDL_WINDOWEVENT)
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-                update_grid_size(window);
+                update_grid_size();
         if (event.type == SDL_KEYDOWN)
         {
             switch (event.key.keysym.sym)

@@ -1,46 +1,46 @@
 #include "global.h"
 #include "sprite.h"
 
-int32_t load_media();
+bool load_media();
 void unload_media();
-int32_t create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
+bool create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
 
-static int32_t load_texture(const char*, SDL_Texture**);
-static int32_t load_font(const char*, TTF_Font**, int32_t);
+static bool load_texture(const char*, SDL_Texture**);
+static bool load_font(const char*, TTF_Font**, int32_t);
 
-SDL_Texture* tx_icon_sand;
-SDL_Texture* tx_icon_water;
-SDL_Texture* tx_icon_acid;
-SDL_Texture* tx_icon_virus;
-SDL_Texture* tx_icon_wood;
-SDL_Texture* tx_icon_metal;
-SDL_Texture* tx_icon_eraser;
-SDL_Texture* tx_icon_reset;
+SDL_Texture* tx_icon_sand = NULL;
+SDL_Texture* tx_icon_water = NULL;
+SDL_Texture* tx_icon_acid = NULL;
+SDL_Texture* tx_icon_virus = NULL;
+SDL_Texture* tx_icon_wood = NULL;
+SDL_Texture* tx_icon_metal = NULL;
+SDL_Texture* tx_icon_eraser = NULL;
+SDL_Texture* tx_icon_reset = NULL;
 
-SDL_Texture* tx_icon_sand_selected;
-SDL_Texture* tx_icon_water_selected;
-SDL_Texture* tx_icon_acid_selected;
-SDL_Texture* tx_icon_virus_selected;
-SDL_Texture* tx_icon_wood_selected;
-SDL_Texture* tx_icon_metal_selected;
-SDL_Texture* tx_icon_eraser_selected;
-SDL_Texture* tx_icon_reset_selected;
+SDL_Texture* tx_icon_sand_selected = NULL;
+SDL_Texture* tx_icon_water_selected = NULL;
+SDL_Texture* tx_icon_acid_selected = NULL;
+SDL_Texture* tx_icon_virus_selected = NULL;
+SDL_Texture* tx_icon_wood_selected = NULL;
+SDL_Texture* tx_icon_metal_selected = NULL;
+SDL_Texture* tx_icon_eraser_selected = NULL;
+SDL_Texture* tx_icon_reset_selected = NULL;
 
-TTF_Font* ttf_cascadia_code;
+TTF_Font* ttf_cascadia_code = NULL;
 
-SDL_Texture* tx_1;
-SDL_Texture* tx_2;
-SDL_Texture* tx_3;
-SDL_Texture* tx_4;
-SDL_Texture* tx_5;
-SDL_Texture* tx_6;
-SDL_Texture* tx_0;
-SDL_Texture* tx_c;
+SDL_Texture* tx_1 = NULL;
+SDL_Texture* tx_2 = NULL;
+SDL_Texture* tx_3 = NULL;
+SDL_Texture* tx_4 = NULL;
+SDL_Texture* tx_5 = NULL;
+SDL_Texture* tx_6 = NULL;
+SDL_Texture* tx_0 = NULL;
+SDL_Texture* tx_c = NULL;
 
-SDL_Texture* tx_fps_counter;
-SDL_Texture* tx_selected_material;
-SDL_Texture* tx_advanced_options;
-SDL_Texture* tx_particle_count;
+SDL_Texture* tx_fps_counter = NULL;
+SDL_Texture* tx_selected_material = NULL;
+SDL_Texture* tx_advanced_options = NULL;
+SDL_Texture* tx_particle_count = NULL;
 
 char* str_advanced_options = "Advanced options:\n"
                              "\n"
@@ -51,31 +51,31 @@ char* str_advanced_options = "Advanced options:\n"
                              "[F5]: show FPS\n"
                              "[F6]: show particle count";
 
-static int32_t load_texture(const char* file, SDL_Texture** tex)
+static bool load_texture(const char* file, SDL_Texture** tex)
 {
     *tex = IMG_LoadTexture(renderer, file);
     if (*tex == NULL)
     {
         printf("Error loading texture %s: %s\n", file, IMG_GetError());
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 }
 
-static int32_t load_font(const char* file, TTF_Font** font, int32_t size)
+static bool load_font(const char* file, TTF_Font** font, int32_t size)
 {
     *font = TTF_OpenFont(file, size);
     if (*font == NULL)
     {
         printf("Error loading font %s: %s\n", file, TTF_GetError());
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 }
 
-int32_t create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** tex)
+bool create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** tex)
 {
     SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(font, text, color, 0);
     if (surface == NULL)
@@ -88,16 +88,16 @@ int32_t create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Textu
     if (*tex == NULL)
     {
         printf("Failed to create texture: %s\n", SDL_GetError());
-        return 0; 
+        return false; 
     }
 
     SDL_FreeSurface(surface);
     surface = NULL;
 
-    return 1;
+    return true;
 }
 
-int32_t load_media()
+bool load_media()
 {
     return
         load_texture("res/sprites/icon_sand.png", &tx_icon_sand) && 

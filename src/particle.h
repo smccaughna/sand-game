@@ -22,8 +22,8 @@ typedef struct material_t
 typedef struct particle_t 
 {
     material_t material;
-    uint8_t enabled;
-    uint8_t is_static;
+    bool enabled;
+    bool is_static;
     uint32_t update_step;
 } particle_t;
 
@@ -38,12 +38,10 @@ const extern material_t virus;
 const extern material_t wood;
 const extern material_t metal;
 const extern material_t none;
+extern material_t current_material;
 
 extern particle_t** cell_grid;
 
 extern int32_t grid_width;
 extern int32_t grid_height;
-
-extern material_t current_material;
-
 extern int32_t particle_count;

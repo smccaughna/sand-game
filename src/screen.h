@@ -6,7 +6,7 @@
 
 typedef struct button_t
 {
-    int selected;
+    bool selected;
     SDL_Rect rect;
     SDL_Texture* texture;
     SDL_Texture* selected_texture;
@@ -31,7 +31,7 @@ extern char str_fps_counter[10];
 extern char str_particle_count[21];
 extern int32_t length_selected_material;
 
-extern int32_t show_advanced_options;
-extern int32_t show_static_particles;
-extern int32_t show_fps;
-extern int32_t show_particle_count;
+extern bool show_advanced_options;
+extern bool show_static_particles;
+extern bool show_fps;
+extern bool show_particle_count;

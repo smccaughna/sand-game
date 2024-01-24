@@ -4,9 +4,9 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
-extern int32_t load_media();
+extern bool load_media();
 extern void unload_media();
-extern int32_t create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
+extern bool create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
 
 extern SDL_Texture* tx_icon_sand;
 extern SDL_Texture* tx_icon_water;

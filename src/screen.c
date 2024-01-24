@@ -19,10 +19,10 @@ char str_fps_counter[10];
 char str_particle_count[21];
 int32_t length_selected_material = 4;
 
-int32_t show_advanced_options = 0;
-int32_t show_static_particles = 0;
-int32_t show_fps = 1;
-int32_t show_particle_count = 0;
+bool show_advanced_options = false;
+bool show_static_particles = false;
+bool show_fps = true;
+bool show_particle_count = false;
 
 void draw_screen() 
 {
@@ -34,14 +34,6 @@ void draw_screen()
     button_metal = (button_t){ .selected = (current_material.type == METAL), .rect = (SDL_Rect){ window_width - 48, 240, 48, 48 }, .texture = tx_icon_metal, .selected_texture = tx_icon_metal_selected };
     button_eraser = (button_t){ .selected = (current_material.type == NONE), .rect = (SDL_Rect){ window_width - 48, window_height - 96, 48, 48 }, .texture = tx_icon_eraser, .selected_texture = tx_icon_eraser_selected };
     button_reset = (button_t){ .selected = 0, .rect = (SDL_Rect){ window_width - 48, window_height - 48, 48, 48 }, .texture = tx_icon_reset, .selected_texture = tx_icon_reset_selected };
-    
-    if (step % 64 == 2)
-    {
-        snprintf(str_fps_counter, 10, "fps: %d", frames_per_second);
-        create_text(str_fps_counter, ttf_cascadia_code, white, &tx_fps_counter);
-        snprintf(str_particle_count, 21, "active cells: %d", particle_count);
-        create_text(str_particle_count, ttf_cascadia_code, white, &tx_particle_count);
-    }
 
     SDL_Surface* surface_map = SDL_CreateRGBSurface(0, grid_width, grid_height, 32, 0, 0, 0, 0);
 
@@ -65,7 +57,7 @@ void draw_screen()
 
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
 
-    SDL_Point mouse_pos = { 0 };
+    SDL_Point mouse_pos;
     SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
 
     SDL_RenderClear(renderer);
@@ -104,12 +96,6 @@ void draw_screen()
     }
     SDL_RenderPresent(renderer);
 
-    if (step % 64 == 1)
-    {
-        SDL_DestroyTexture(tx_particle_count); tx_particle_count = NULL;
-        SDL_DestroyTexture(tx_fps_counter); tx_fps_counter = NULL;
-    }
-
     SDL_DestroyTexture(texture_map); texture_map = NULL;
 }
 
@@ -123,16 +109,16 @@ void update_grid_size()
     grid_width = (window_width - 48) / SCALE;
     grid_height = window_height / SCALE;
 
-    cell_grid = (particle_t**)realloc(cell_grid, grid_width * sizeof(particle_t*));
+    cell_grid = realloc(cell_grid, grid_width * sizeof(particle_t*));
 
     if (grid_width > grid_width_old)
     {
         for (int32_t i = 0; i < grid_width_old; i++)
-            cell_grid[i] = (particle_t*)realloc(cell_grid[i], grid_height * sizeof(particle_t));
+            cell_grid[i] = realloc(cell_grid[i], grid_height * sizeof(particle_t));
         
         for (int i = grid_width_old; i < grid_width; i++)
         {
-            cell_grid[i] = (particle_t*)malloc(grid_height * sizeof(particle_t));
+            cell_grid[i] = malloc(grid_height * sizeof(particle_t));
             memset(cell_grid[i], 0, grid_height * sizeof(particle_t));
         }
 
@@ -143,7 +129,7 @@ void update_grid_size()
     else
     {
         for (int i = 0; i < grid_width; i++)
-            cell_grid[i] = (particle_t*)realloc(cell_grid[i], grid_height * sizeof(particle_t));
+            cell_grid[i] = realloc(cell_grid[i], grid_height * sizeof(particle_t));
 
         if (grid_height > grid_height_old)
             for (int i = 0; i < grid_width; i++)
