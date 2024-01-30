@@ -90,6 +90,9 @@ static uint32_t calculate_fps(uint32_t interval, void* param)
     frames_per_second = step / (interval / 1000.0f);
     step = 0;
 
+    SDL_DestroyTexture(tx_fps_counter); tx_fps_counter = NULL;
+    SDL_DestroyTexture(tx_particle_count); tx_particle_count = NULL;
+
     snprintf(str_fps_counter, 10, "fps: %d", frames_per_second);
     create_text(str_fps_counter, ttf_cascadia_code, white, &tx_fps_counter);
     snprintf(str_particle_count, 21, "active cells: %d", particle_count);

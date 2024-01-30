@@ -26,7 +26,7 @@ bool init_game()
 
 	SDL_SetWindowMinimumSize(window, 800, 600);
 
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == NULL)
 	{
 		printf("Could not initialize renderer: %s\n", SDL_GetError());
