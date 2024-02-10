@@ -2,6 +2,9 @@
 
 #include <SDL.h>
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #define SCALE 2
 
 typedef struct button_t

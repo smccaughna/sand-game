@@ -24,7 +24,7 @@ bool show_static_particles = false;
 bool show_fps = true;
 bool show_particle_count = false;
 
-void draw_screen() 
+void draw_screen()
 {
     button_sand = (button_t){ .selected = (current_material.type == SAND), .rect = (SDL_Rect){ window_width - 48, 0, 48, 48 }, .texture = tx_icon_sand, .selected_texture = tx_icon_sand_selected };
     button_water = (button_t){ .selected = (current_material.type == WATER), .rect = (SDL_Rect){ window_width - 48, 48, 48, 48 }, .texture = tx_icon_water, .selected_texture = tx_icon_water_selected };
@@ -50,6 +50,25 @@ void draw_screen()
 
             SDL_FillRect(surface_map, &(SDL_Rect){ i, j, 1, 1 }, (color.r << 16) + (color.g << 8) + color.b);
         }
+    }
+
+    if (step % 100 == 0)
+    {
+        if (tx_fps_counter)
+        {
+            SDL_DestroyTexture(tx_fps_counter);
+            tx_fps_counter = NULL;
+        }
+        if (tx_particle_count)
+        {
+            SDL_DestroyTexture(tx_particle_count);
+            tx_particle_count = NULL;
+        }
+
+        snprintf(str_fps_counter, 10, "fps: %d", frames_per_second);
+        create_text(str_fps_counter, ttf_cascadia_code, white, &tx_fps_counter);
+        snprintf(str_particle_count, 21, "active cells: %d", particle_count);
+        create_text(str_particle_count, ttf_cascadia_code, white, &tx_particle_count);
     }
 
     SDL_Texture* texture_map = SDL_CreateTextureFromSurface(renderer, surface_map);
@@ -115,7 +134,7 @@ void update_grid_size()
     {
         for (int32_t i = 0; i < grid_width_old; i++)
             cell_grid[i] = realloc(cell_grid[i], grid_height * sizeof(particle_t));
-        
+
         for (int i = grid_width_old; i < grid_width; i++)
         {
             cell_grid[i] = malloc(grid_height * sizeof(particle_t));

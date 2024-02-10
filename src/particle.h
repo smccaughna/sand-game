@@ -2,7 +2,10 @@
 
 #include <SDL.h>
 
-enum 
+#include <stdbool.h>
+#include <stdint.h>
+
+enum
 {
     NONE,
     SAND,
@@ -19,7 +22,7 @@ typedef struct material_t
     SDL_Color color;
 } material_t;
 
-typedef struct particle_t 
+typedef struct particle_t
 {
     material_t material;
     bool enabled;

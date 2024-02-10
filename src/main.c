@@ -13,7 +13,7 @@ const int32_t max_framerate = 120;
 int32_t frames_per_second = 0;
 uint32_t step = 0;
 
-bool lock_framerate = true;
+bool lock_framerate = false;
 bool pause_simulation = false;
 
 SDL_TimerID fps_timer;
@@ -84,19 +84,8 @@ void cleanup()
 
 static uint32_t calculate_fps(uint32_t interval, void* param)
 {
-    SDL_DestroyTexture(tx_particle_count); tx_particle_count = NULL;
-    SDL_DestroyTexture(tx_fps_counter); tx_fps_counter = NULL;
-
     frames_per_second = step / (interval / 1000.0f);
     step = 0;
-
-    SDL_DestroyTexture(tx_fps_counter); tx_fps_counter = NULL;
-    SDL_DestroyTexture(tx_particle_count); tx_particle_count = NULL;
-
-    snprintf(str_fps_counter, 10, "fps: %d", frames_per_second);
-    create_text(str_fps_counter, ttf_cascadia_code, white, &tx_fps_counter);
-    snprintf(str_particle_count, 21, "active cells: %d", particle_count);
-    create_text(str_particle_count, ttf_cascadia_code, white, &tx_particle_count);
 
     return 1000;
 }

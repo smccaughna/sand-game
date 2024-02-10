@@ -1,6 +1,4 @@
 #include "global.h"
-#include "particle.h"
-#include "sprite.h"
 #include "screen.h"
 
 int32_t window_width = 1280;

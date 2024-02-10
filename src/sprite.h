@@ -4,6 +4,8 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 
+#include <stdbool.h>
+
 extern bool load_media();
 extern void unload_media();
 extern bool create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);

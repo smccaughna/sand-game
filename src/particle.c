@@ -202,7 +202,7 @@ static void update_acid(int32_t x, int32_t y)
     if (y < grid_height - 1 && cell_grid[x][y + 1].enabled && cell_grid[x][y + 1].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x][y + 1];
         cell_grid[x][y].update_step = step;
         cell_grid[x][y + 1] = acid_p;
@@ -212,7 +212,7 @@ static void update_acid(int32_t x, int32_t y)
     else if (y < grid_height - 1 && x != boundary && cell_grid[x + direction][y + 1].enabled && cell_grid[x + direction][y + 1].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x + direction][y + 1];
         cell_grid[x][y].update_step = step;
         cell_grid[x + direction][y + 1] = acid_p;
@@ -222,7 +222,7 @@ static void update_acid(int32_t x, int32_t y)
     else if (y < grid_height - 1 && x != alt_boundary && cell_grid[x - direction][y + 1].enabled && cell_grid[x - direction][y + 1].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x - direction][y + 1];
         cell_grid[x][y].update_step = step;
         cell_grid[x - direction][y + 1] = acid_p;
@@ -232,7 +232,7 @@ static void update_acid(int32_t x, int32_t y)
     else if (y < grid_height - 1 && x != boundary && cell_grid[x + direction][y].enabled && cell_grid[x + direction][y].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x + direction][y];
         cell_grid[x][y].update_step = step;
         cell_grid[x + direction][y] = acid_p;
@@ -242,7 +242,7 @@ static void update_acid(int32_t x, int32_t y)
     else if (y < grid_height - 1 && x != alt_boundary && cell_grid[x - direction][y].enabled && cell_grid[x - direction][y].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x - direction][y];
         cell_grid[x][y].update_step = step;
         cell_grid[x - direction][y] = acid_p;
@@ -335,7 +335,7 @@ void update_virus(int32_t x, int32_t y)
     if (y < grid_height - 1 && cell_grid[x][y + 1].enabled && cell_grid[x][y + 1].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x][y + 1];
         cell_grid[x][y].update_step = step;
         cell_grid[x][y + 1] = acid_p;
@@ -345,7 +345,7 @@ void update_virus(int32_t x, int32_t y)
     else if (y < grid_height - 1 && x != boundary && cell_grid[x + direction][y + 1].enabled && cell_grid[x + direction][y + 1].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x + direction][y + 1];
         cell_grid[x][y].update_step = step;
         cell_grid[x + direction][y + 1] = acid_p;
@@ -355,7 +355,7 @@ void update_virus(int32_t x, int32_t y)
     else if (y < grid_height - 1 && x != alt_boundary && cell_grid[x - direction][y + 1].enabled && cell_grid[x - direction][y + 1].material.type == WATER)
     {
         particle_t acid_p = cell_grid[x][y];
-        
+
         cell_grid[x][y] = cell_grid[x - direction][y + 1];
         cell_grid[x][y].update_step = step;
         cell_grid[x - direction][y + 1] = acid_p;
