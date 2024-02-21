@@ -2,37 +2,13 @@
 
 project (sand-game C)
 
-include (FetchContent)
-set (FETCHCONTENT_QUIET FALSE)
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 set (CMAKE_C_STANDARD 11)
 set (CMAKE_C_STANDARD_REQUIRED TRUE)
 
 file (GLOB PROJ_SOURCES "src/*.c")
 file (GLOB PROJ_HEADERS "src/*.h")
-
-FetchContent_Declare (
-	SDL2
-	GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-	GIT_TAG origin/SDL2
-	GIT_PROGRESS TRUE
-)
-
-FetchContent_Declare (
-	SDL2_IMAGE
-	GIT_REPOSITORY https://github.com/libsdl-org/SDL_image.git
-	GIT_TAG origin/SDL2
-	GIT_PROGRESS TRUE
-)
-
-FetchContent_Declare (
-	SDL2_TTF
-	GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
-	GIT_TAG origin/SDL2
-	GIT_PROGRESS TRUE
-)
-
-FetchContent_MakeAvailable(SDL2 SDL2_IMAGE SDL2_TTF)
 
 if (WIN32)
 	add_executable (${PROJECT_NAME} WIN32 ${PROJ_SOURCES} ${PROJ_HEADERS})
@@ -54,12 +30,15 @@ elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
 	)
 endif ()
 
+find_package (SDL2 REQUIRED)
+find_package (SDL2_image REQUIRED)
+find_package (SDL2_ttf REQUIRED)
+
 target_link_libraries (
-	${PROJECT_NAME} PRIVATE 
-	SDL2main
-	SDL2
-	SDL2_image
-	SDL2_ttf
+	${PROJECT_NAME} PRIVATE
+	SDL2::Main
+	SDL2::Image
+	SDL2::TTF
 )
 
 if (NOT MSVC)
@@ -70,19 +49,19 @@ if (WIN32)
 	add_custom_command (
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		$<TARGET_FILE:SDL2>
+		${SDL2_PATH}/lib/x64/SDL2.dll
 		$<TARGET_FILE_DIR:${PROJECT_NAME}>
 	)
 	add_custom_command (
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		$<TARGET_FILE:SDL2_image>
+		${SDL2_IMAGE_PATH}/lib/x64/SDL2_image.dll
 		$<TARGET_FILE_DIR:${PROJECT_NAME}>
 	)
 	add_custom_command (
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMAND ${CMAKE_COMMAND} -E copy_if_different
-		$<TARGET_FILE:SDL2_ttf>
+		${SDL2_TTF_PATH}/lib/x64/SDL2_ttf.dll
 		$<TARGET_FILE_DIR:${PROJECT_NAME}>
 	)
 endif ()
