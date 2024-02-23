@@ -118,6 +118,10 @@ void update_grid_size()
     }
     texture_map = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, grid_width, grid_height);
 
+    if (grid_width < grid_width_old)
+        for (int32_t i = grid_width; i < grid_width_old; i++)
+            free(cell_grid[i]);
+
     cell_grid = realloc(cell_grid, grid_width * sizeof(particle_t*));
 
     if (grid_width > grid_width_old)
@@ -137,11 +141,11 @@ void update_grid_size()
     }
     else
     {
-        for (int i = 0; i < grid_width; i++)
+        for (int32_t i = 0; i < grid_width; i++)
             cell_grid[i] = realloc(cell_grid[i], grid_height * sizeof(particle_t));
 
         if (grid_height > grid_height_old)
-            for (int i = 0; i < grid_width; i++)
+            for (int32_t i = 0; i < grid_width; i++)
                 memset(cell_grid[i] + grid_height_old, 0, (grid_height - grid_height_old) * sizeof(particle_t));
     }
 
