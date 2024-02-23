@@ -45,5 +45,7 @@ bool init_game()
 		return false;
 	}
 
+	texture_map = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, (window_width - 48) / SCALE, window_height / SCALE);
+
 	return true;
 }

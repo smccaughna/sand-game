@@ -6,6 +6,9 @@
 void draw_screen();
 void update_grid_size();
 
+SDL_Surface* surface_map = NULL;
+SDL_Texture* texture_map = NULL;
+
 button_t button_sand;
 button_t button_water;
 button_t button_acid;
@@ -14,10 +17,6 @@ button_t button_wood;
 button_t button_metal;
 button_t button_eraser;
 button_t button_reset;
-
-char str_fps_counter[10];
-char str_particle_count[21];
-int32_t length_selected_material = 4;
 
 bool show_advanced_options = false;
 bool show_static_particles = false;
@@ -35,7 +34,10 @@ void draw_screen()
     button_eraser = (button_t){ .selected = (current_material.type == NONE), .rect = (SDL_Rect){ window_width - 48, window_height - 96, 48, 48 }, .texture = tx_icon_eraser, .selected_texture = tx_icon_eraser_selected };
     button_reset = (button_t){ .selected = 0, .rect = (SDL_Rect){ window_width - 48, window_height - 48, 48, 48 }, .texture = tx_icon_reset, .selected_texture = tx_icon_reset_selected };
 
-    SDL_Surface* surface_map = SDL_CreateRGBSurface(0, grid_width, grid_height, 32, 0, 0, 0, 0);
+    SDL_Surface* surface_map = NULL;
+    SDL_LockTextureToSurface(texture_map, NULL, &surface_map);
+
+    SDL_FillRect(surface_map, NULL, 0);
 
     for (int32_t i = 0; i < grid_width; i++)
     for (int32_t j = 0; j < grid_height; j++)
@@ -52,32 +54,15 @@ void draw_screen()
         }
     }
 
+    SDL_UnlockTexture(texture_map);
+
     if (step % 100 == 0)
     {
-        if (tx_fps_counter)
-        {
-            SDL_DestroyTexture(tx_fps_counter);
-            tx_fps_counter = NULL;
-        }
-        if (tx_particle_count)
-        {
-            SDL_DestroyTexture(tx_particle_count);
-            tx_particle_count = NULL;
-        }
-
-        snprintf(str_fps_counter, 10, "fps: %d", frames_per_second);
-        create_text(str_fps_counter, ttf_cascadia_code, white, &tx_fps_counter);
-        snprintf(str_particle_count, 21, "active cells: %d", particle_count);
-        create_text(str_particle_count, ttf_cascadia_code, white, &tx_particle_count);
+        update_fps_count(frames_per_second);
+        update_particle_count(particle_count);
     }
 
-    SDL_Texture* texture_map = SDL_CreateTextureFromSurface(renderer, surface_map);
-    SDL_FreeSurface(surface_map); surface_map = NULL;
-
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-
-    SDL_Point mouse_pos;
-    SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
 
     SDL_RenderClear(renderer);
     {
@@ -109,13 +94,11 @@ void draw_screen()
         if (show_advanced_options)
             SDL_RenderCopy(renderer, tx_advanced_options, NULL, &(SDL_Rect){ 150, 75, 372, 192 });
         if (show_fps)
-            SDL_RenderCopy(renderer, tx_fps_counter, NULL, &(SDL_Rect){ 10, 10, 12 * strlen(str_fps_counter), 24 });
+            SDL_RenderCopy(renderer, tx_fps_count, NULL, &(SDL_Rect){ 10, 10, 12 * length_fps_count, 24 });
         if (show_particle_count)
-            SDL_RenderCopy(renderer, tx_particle_count, NULL, &(SDL_Rect){ 10, 36, 8 * strlen(str_particle_count), 18 });
+            SDL_RenderCopy(renderer, tx_particle_count, NULL, &(SDL_Rect){ 10, 36, 8 * length_particle_count, 18 });
     }
     SDL_RenderPresent(renderer);
-
-    SDL_DestroyTexture(texture_map); texture_map = NULL;
 }
 
 void update_grid_size()
@@ -127,6 +110,13 @@ void update_grid_size()
 
     grid_width = (window_width - 48) / SCALE;
     grid_height = window_height / SCALE;
+
+    if (texture_map != NULL)
+    {
+        SDL_DestroyTexture(texture_map);
+        texture_map = NULL;
+    }
+    texture_map = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, grid_width, grid_height);
 
     cell_grid = realloc(cell_grid, grid_width * sizeof(particle_t*));
 

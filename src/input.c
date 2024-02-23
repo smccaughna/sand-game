@@ -20,38 +20,31 @@ void handle_input()
             {
                 case SDLK_1:
                     current_material = sand;
-                    length_selected_material = 4;
-                    create_text("sand", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("sand", 4);
                     break;
                 case SDLK_2:
                     current_material = water;
-                    length_selected_material = 5;
-                    create_text("water", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("water", 5);
                     break;
                 case SDLK_3:
                     current_material = acid;
-                    length_selected_material = 4;
-                    create_text("acid", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("acid", 4);
                     break;
                 case SDLK_4:
                     current_material = virus;
-                    length_selected_material = 5;
-                    create_text("virus", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("virus", 5);
                     break;
                 case SDLK_5:
                     current_material = wood;
-                    length_selected_material = 4;
-                    create_text("wood", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("wood", 4);
                     break;
                 case SDLK_6:
                     current_material = metal;
-                    length_selected_material = 5;
-                    create_text("metal", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("metal", 5);
                     break;
                 case SDLK_0:
                     current_material = none;
-                    length_selected_material = 6;
-                    create_text("eraser", ttf_cascadia_code, white, &tx_selected_material);
+                    update_material_text("erase", 5);
                     break;
                 case SDLK_c:
                     clear_grid();
@@ -85,44 +78,37 @@ void handle_input()
         if (SDL_PointInRect(&mouse_pos, &button_sand.rect))
         {
             current_material = sand;
-            length_selected_material = 4;
-            create_text("sand", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("sand", 4);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_water.rect))
         {
             current_material = water;
-            length_selected_material = 5;
-            create_text("water", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("water", 5);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_acid.rect))
         {
             current_material = acid;
-            length_selected_material = 4;
-            create_text("acid", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("acid", 4);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_virus.rect))
         {
             current_material = virus;
-            length_selected_material = 5;
-            create_text("virus", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("virus", 5);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_wood.rect))
         {
             current_material = wood;
-            length_selected_material = 4;
-            create_text("wood", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("wood", 4);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_metal.rect))
         {
             current_material = metal;
-            length_selected_material = 5;
-            create_text("metal", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("metal", 5);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_eraser.rect))
         {
             current_material = none;
-            length_selected_material = 6;
-            create_text("eraser", ttf_cascadia_code, white, &tx_selected_material);
+            update_material_text("sand", 4);
         }
         else if (SDL_PointInRect(&mouse_pos, &button_reset.rect))
             clear_grid();

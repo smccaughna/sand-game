@@ -13,7 +13,7 @@ const int32_t max_framerate = 120;
 int32_t frames_per_second = 0;
 uint32_t step = 0;
 
-bool lock_framerate = false;
+bool lock_framerate = true;
 bool pause_simulation = false;
 
 SDL_TimerID fps_timer;

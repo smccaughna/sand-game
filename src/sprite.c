@@ -1,12 +1,17 @@
 #include "global.h"
 #include "sprite.h"
+#include "particle.h"
 
 bool load_media();
 void unload_media();
-bool create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
+void update_material_text(const char*, int32_t);
+void update_fps_count(int32_t);
+void update_particle_count(int32_t);
 
 static bool load_texture(const char*, SDL_Texture**);
 static bool load_font(const char*, TTF_Font**, int32_t);
+static bool create_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
+static bool update_text(const char*, TTF_Font*, SDL_Color, SDL_Texture**);
 
 SDL_Texture* tx_icon_sand = NULL;
 SDL_Texture* tx_icon_water = NULL;
@@ -37,10 +42,14 @@ SDL_Texture* tx_6 = NULL;
 SDL_Texture* tx_0 = NULL;
 SDL_Texture* tx_c = NULL;
 
-SDL_Texture* tx_fps_counter = NULL;
+SDL_Texture* tx_fps_count = NULL;
+SDL_Texture* tx_particle_count = NULL;
 SDL_Texture* tx_selected_material = NULL;
 SDL_Texture* tx_advanced_options = NULL;
-SDL_Texture* tx_particle_count = NULL;
+
+int32_t length_fps_count = 0;
+int32_t length_particle_count = 0;
+int32_t length_selected_material = 0;
 
 char* str_advanced_options = "Advanced options:\n"
                              "\n"
@@ -75,13 +84,13 @@ static bool load_font(const char* file, TTF_Font** font, int32_t size)
     return true;
 }
 
-bool create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** tex)
+static bool create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** tex)
 {
     SDL_Surface* surface = TTF_RenderText_Blended_Wrapped(font, text, color, 0);
     if (surface == NULL)
     {
         printf("Failed to create surface: %s\n", TTF_GetError());
-        return 0;
+        return false;
     }
 
     *tex = SDL_CreateTextureFromSurface(renderer, surface);
@@ -92,7 +101,54 @@ bool create_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture*
     }
 
     SDL_FreeSurface(surface);
-    surface = NULL;
+
+    return true;
+}
+
+static bool update_text(const char* text, TTF_Font* font, SDL_Color color, SDL_Texture** tex)
+{
+    SDL_Surface* text_surface = TTF_RenderText_Blended_Wrapped(font, text, color, 0);
+    if (text_surface == NULL)
+    {
+        printf("Failed to create surface: %s\n", SDL_GetError());
+        return false;
+    }
+
+    if (*tex == NULL)
+    {
+        *tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, text_surface->w, text_surface->h);
+        if (*tex == NULL)
+        {
+            printf("Failed to create texture: %s\n", SDL_GetError());
+            SDL_FreeSurface(text_surface);
+            return false;
+        }
+    }
+    else
+    {
+        SDL_Point tex_size;
+        SDL_QueryTexture(*tex, NULL, NULL, &tex_size.x, &tex_size.y);
+
+        if (tex_size.x != text_surface->w || tex_size.y != text_surface->h)
+        {
+            SDL_DestroyTexture(*tex);
+            *tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, text_surface->w, text_surface->h);
+            if (*tex == NULL)
+            {
+                printf("Failed to create texture: %s\n", SDL_GetError());
+                SDL_FreeSurface(text_surface);
+                return false;
+            }
+        }
+    }
+
+    SDL_Surface* display_surface;
+    SDL_LockTextureToSurface(*tex, NULL, &display_surface);
+    SDL_FillRect(display_surface, NULL, 0);
+    SDL_BlitSurface(text_surface, NULL, display_surface, NULL);
+    SDL_UnlockTexture(*tex);
+
+    SDL_FreeSurface(text_surface);
 
     return true;
 }
@@ -158,4 +214,34 @@ void unload_media()
     SDL_DestroyTexture(tx_c); tx_c = NULL;
     SDL_DestroyTexture(tx_selected_material); tx_selected_material = NULL;
     SDL_DestroyTexture(tx_advanced_options); tx_advanced_options = NULL;
+    SDL_DestroyTexture(tx_fps_count); tx_fps_count = NULL;
+    SDL_DestroyTexture(tx_particle_count); tx_particle_count = NULL;
+}
+
+void update_material_text(const char* str, int32_t len)
+{
+    if (tx_selected_material != NULL)
+    {
+        SDL_DestroyTexture(tx_selected_material);
+        tx_selected_material = NULL;
+    }
+
+    length_selected_material = len;
+    create_text(str, ttf_cascadia_code, white, &tx_selected_material);
+}
+
+void update_fps_count(int32_t count)
+{
+    char str_fps_count[64];
+    snprintf(str_fps_count, 64, "fps: %d", frames_per_second);
+    length_fps_count = strlen(str_fps_count);
+    update_text(str_fps_count, ttf_cascadia_code, white, &tx_fps_count);
+}
+
+void update_particle_count(int32_t count)
+{
+    char str_particle_count[64];
+    snprintf(str_particle_count, 64, "active cells: %d", particle_count);
+    length_particle_count = strlen(str_particle_count);
+    update_text(str_particle_count, ttf_cascadia_code, white, &tx_particle_count);
 }
