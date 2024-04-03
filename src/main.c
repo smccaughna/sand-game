@@ -4,6 +4,8 @@
 #include "render.h"
 #include "sprite.h"
 
+#define FPS_LIMIT 200
+
 int main(int argc, char** argv)
 {
     srand(time(NULL));
@@ -21,6 +23,10 @@ int main(int argc, char** argv)
         handle_input(&state);
         update_grid(&state);
         render(&state);
+
+        if (state.options.limit_fps) {
+            SDL_Delay((int)(1000.0f / FPS_LIMIT) - (SDL_GetTicks64() - state.time.now));
+        }
     }
 
     quit_game(&state);
