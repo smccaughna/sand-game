@@ -12,9 +12,12 @@ static void update_sand(state_t* state, int32_t x, int32_t y);
 
 void update_grid(state_t* state)
 {
-    for (int32_t j = state->grid.rect.h - 1; j >= 0; j--) {
+    for (int32_t j = 0; j < state->grid.rect.h; j++) {
         for (int32_t i = 0; i < state->grid.rect.w; i++) {
-            if (state->grid.cells[i][j] != NULL && !state->grid.cells[i][j]->is_static) {
+            if (state->grid.cells[i][j] != NULL &&
+               !state->grid.cells[i][j]->is_static &&
+                state->grid.cells[i][j]->last_update != state->time.tick)
+            {
                 switch (state->grid.cells[i][j]->material.type) {
                 case WOOD:
                 case METAL:
@@ -32,31 +35,28 @@ static void update_sand(state_t* state, int32_t x, int32_t y)
     int32_t direction = rand() > (RAND_MAX / 2) ? 1 : -1;
 
     if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
-         state->grid.cells[x][y + 1] == NULL &&
-         state->grid.cells[x][y]->last_update != state->time.tick)
+         state->grid.cells[x][y + 1] == NULL)
     {
-        activate_neighbors(state, x, y);
         state->grid.cells[x][y + 1] = state->grid.cells[x][y];
         state->grid.cells[x][y] = NULL;
         state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
     }
     else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
-              state->grid.cells[x + direction][y + 1] == NULL &&
-              state->grid.cells[x][y]->last_update != state->time.tick)
+              state->grid.cells[x + direction][y + 1] == NULL)
     {
-        activate_neighbors(state, x, y);
         state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
         state->grid.cells[x][y] = NULL;
         state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
     }
     else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
-              state->grid.cells[x - direction][y + 1] == NULL &&
-              state->grid.cells[x][y]->last_update != state->time.tick)
+              state->grid.cells[x - direction][y + 1] == NULL)
     {
-        activate_neighbors(state, x, y);
         state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
         state->grid.cells[x][y] = NULL;
         state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
     }
     else {
         state->grid.cells[x][y]->is_static = true;
@@ -65,8 +65,6 @@ static void update_sand(state_t* state, int32_t x, int32_t y)
 
 void activate_neighbors(state_t* state, int32_t x, int32_t y)
 {
-    if (state->grid.cells[x][y] == NULL) return;
-
     for (int32_t i = -1; i <= 1; i++) {
         for (int32_t j = -1; j <= 1; j++) {
             if (!check_out_of_bounds(&state->grid.rect, x + i, y + j) && state->grid.cells[x + i][y + j] != NULL) {

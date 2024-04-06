@@ -17,15 +17,20 @@ int main(int argc, char** argv)
     }
 
     while (!state.should_quit) {
-        state.time.now = SDL_GetTicks64();
+        state.time.now = SDL_GetPerformanceCounter();
         state.time.tick++;
 
         handle_input(&state);
-        update_grid(&state);
+
+        if (!state.options.pause_game) {
+            update_grid(&state);
+        }
+
         render(&state);
 
-        if (state.options.limit_fps) {
-            SDL_Delay((int)(1000.0f / FPS_LIMIT) - (SDL_GetTicks64() - state.time.now));
+        int64_t delay = (int64_t)((1000.0f / FPS_LIMIT) - (1000.0f * (float)(SDL_GetPerformanceCounter() - state.time.now) / (float)SDL_GetPerformanceFrequency()));
+        if (state.options.limit_fps && delay > 0) {
+            SDL_Delay(delay);
         }
     }
 

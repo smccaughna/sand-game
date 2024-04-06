@@ -20,6 +20,8 @@ bool init_sdl()
         return false;
     }
 
+    SDL_SetHint(SDL_HINT_TIMER_RESOLUTION, "1");
+
     return true;
 }
 
@@ -56,6 +58,10 @@ bool init_game(state_t* state)
         printf("Error loading media\n");
         return false;
     }
+
+    state->options.show_fps = true;
+    state->options.limit_fps = true;
+    state->options.cursor_size = 5;
 
     return true;
 }

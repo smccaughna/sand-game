@@ -10,13 +10,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 
 #define MIN(x, y) ((x > y) ? y : x)
 #define MAX(x, y) ((x > y) ? x : y)
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-#define SCALE 4
+#define SCALE 2
 
 typedef struct particle particle_t;
 typedef struct button button_t;
@@ -53,9 +54,11 @@ typedef struct state {
         bool            limit_fps;
         bool            show_particle_count;
         bool            show_static_particles;
+        int8_t          selected_material;
+        uint8_t         cursor_size;
     }               options;
+    SDL_Point       mouse_pos;
     button_t*       buttons[8];
-    int8_t          selected_material;
 } state_t;
 
 extern bool init_sdl();
