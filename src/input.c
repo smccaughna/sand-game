@@ -79,7 +79,7 @@ void handle_input(state_t* state)
             }
         }
         else {
-            if (!check_out_of_bounds(&state->grid.rect, x, y) && state->grid.cells[x][y] == NULL) {
+            if (!check_out_of_bounds(&state->grid.rect, x, y)) {
                 for (int32_t i = -(state->options.cursor_size - 1) / 2; i <= (state->options.cursor_size - 1) / 2; i++) {
                     for (int32_t j = -(state->options.cursor_size - 1) / 2; j <= (state->options.cursor_size - 1) / 2; j++) {
                         if (!check_out_of_bounds(&state->grid.rect, x + i, y + j)) {

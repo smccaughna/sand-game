@@ -14,20 +14,6 @@ else ()
 	add_executable (${PROJECT_NAME} ${PROJ_SOURCES} ${PROJ_HEADERS})
 endif ()
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-	target_compile_options (
-		${PROJECT_NAME} PRIVATE
-		$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-ggdb3 -Wall>
-		$<$<C_COMPILER_ID:MSVC>:/Zi /W4>
-	)
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-	target_compile_options (
-		${PROJECT_NAME} PRIVATE
-		$<$<OR:$<C_COMPILER_ID:GNU>,$<C_COMPILER_ID:Clang>>:-O3>
-		$<$<C_COMPILER_ID:MSVC>:/O2>
-	)
-endif ()
-
 find_package (SDL2 REQUIRED)
 find_package (SDL2_image REQUIRED)
 find_package (SDL2_ttf REQUIRED)

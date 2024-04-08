@@ -9,6 +9,9 @@ const SDL_Color color_wood = { 0x5C, 0x40, 0x33, 0xFF };
 const SDL_Color color_metal = { 0x80, 0x80, 0x80, 0xFF };
 
 static void update_sand(state_t* state, int32_t x, int32_t y);
+static void update_water(state_t* state, int32_t x, int32_t y);
+static void update_acid(state_t* state, int32_t x, int32_t y);
+static void update_virus(state_t* state, int32_t x, int32_t y);
 
 void update_grid(state_t* state)
 {
@@ -19,11 +22,15 @@ void update_grid(state_t* state)
                 state->grid.cells[i][j]->last_update != state->time.tick)
             {
                 switch (state->grid.cells[i][j]->material.type) {
-                case WOOD:
-                case METAL:
-                    break;
-                default:
-                    update_sand(state, i, j);
+                    case SAND:  update_sand(state, i, j); break;
+                    case WATER: update_water(state, i, j); break;
+                    case ACID:  update_acid(state, i, j); break;
+                    case VIRUS: update_virus(state, i, j); break;
+                    case WOOD:
+                    case METAL:
+                        break;
+                    default:
+                        update_sand(state, i, j);
                 }
             }
         }
@@ -32,7 +39,76 @@ void update_grid(state_t* state)
 
 static void update_sand(state_t* state, int32_t x, int32_t y)
 {
-    int32_t direction = rand() > (RAND_MAX / 2) ? 1 : -1;
+    int32_t direction = (rand() > RAND_MAX / 2) ? 1 : -1;
+
+    if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+         state->grid.cells[x][y + 1] != NULL &&
+        (state->grid.cells[x][y + 1]->material.type == WATER ||
+         state->grid.cells[x][y + 1]->material.type == ACID))
+    {
+        particle_t* water_p = state->grid.cells[x][y + 1];
+        state->grid.cells[x][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
+              state->grid.cells[x + direction][y + 1] != NULL &&
+             (state->grid.cells[x + direction][y + 1]->material.type == WATER ||
+              state->grid.cells[x + direction][y + 1]->material.type == ACID))
+    {
+        particle_t* water_p = state->grid.cells[x + direction][y + 1];
+        state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
+              state->grid.cells[x - direction][y + 1] != NULL &&
+             (state->grid.cells[x - direction][y + 1]->material.type == WATER ||
+              state->grid.cells[x - direction][y + 1]->material.type == ACID))
+    {
+        particle_t* water_p = state->grid.cells[x - direction][y + 1];
+        state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+              state->grid.cells[x][y + 1] == NULL)
+    {
+        state->grid.cells[x][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
+              state->grid.cells[x + direction][y + 1] == NULL)
+    {
+        state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
+              state->grid.cells[x - direction][y + 1] == NULL)
+    {
+        state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else {
+        state->grid.cells[x][y]->is_static = true;
+    }
+}
+
+static void update_water(state_t* state, int32_t x, int32_t y)
+{
+    int32_t direction = (rand() > RAND_MAX / 2) ? 1 : -1;
 
     if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
          state->grid.cells[x][y + 1] == NULL)
@@ -52,6 +128,212 @@ static void update_sand(state_t* state, int32_t x, int32_t y)
     }
     else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
               state->grid.cells[x - direction][y + 1] == NULL)
+    {
+        state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y) &&
+              state->grid.cells[x + direction][y] == NULL)
+    {
+        state->grid.cells[x + direction][y] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x + direction][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y) &&
+              state->grid.cells[x - direction][y] == NULL)
+    {
+        state->grid.cells[x - direction][y] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x - direction][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else {
+        state->grid.cells[x][y]->is_static = true;
+    }
+}
+
+static void update_acid(state_t* state, int32_t x, int32_t y)
+{
+    int32_t direction = (rand() > RAND_MAX / 2) ? 1 : -1;
+
+    if (!check_out_of_bounds(&state->grid.rect, x, y - 1) &&
+         state->grid.cells[x][y - 1] != NULL &&
+         state->grid.cells[x][y - 1]->material.type != ACID &&
+         state->grid.cells[x][y - 1]->material.type != WATER &&
+         state->grid.cells[x][y - 1]->material.type != METAL)
+    {
+        if (rand() < RAND_MAX / 15) {
+            free(state->grid.cells[x][y]);
+            free(state->grid.cells[x][y - 1]);
+            state->grid.cells[x][y] = NULL;
+            state->grid.cells[x][y - 1] = NULL;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+              state->grid.cells[x][y + 1] != NULL &&
+              state->grid.cells[x][y + 1]->material.type != ACID &&
+              state->grid.cells[x][y + 1]->material.type != WATER &&
+              state->grid.cells[x][y + 1]->material.type != METAL)
+    {
+        if (rand() < RAND_MAX / 15) {
+            free(state->grid.cells[x][y]);
+            free(state->grid.cells[x][y + 1]);
+            state->grid.cells[x][y] = NULL;
+            state->grid.cells[x][y + 1] = NULL;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y) &&
+             state->grid.cells[x + direction][y] != NULL &&
+             state->grid.cells[x + direction][y]->material.type != ACID &&
+             state->grid.cells[x + direction][y]->material.type != WATER &&
+             state->grid.cells[x + direction][y]->material.type != METAL)
+    {
+        if (rand() < RAND_MAX / 15) {
+            free(state->grid.cells[x][y]);
+            free(state->grid.cells[x + direction][y]);
+            state->grid.cells[x][y] = NULL;
+            state->grid.cells[x + direction][y] = NULL;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y) &&
+             state->grid.cells[x - direction][y] != NULL &&
+             state->grid.cells[x - direction][y]->material.type != ACID &&
+             state->grid.cells[x - direction][y]->material.type != WATER &&
+             state->grid.cells[x - direction][y]->material.type != METAL)
+    {
+        if (rand() < RAND_MAX / 15) {
+            free(state->grid.cells[x][y]);
+            free(state->grid.cells[x - direction][y]);
+            state->grid.cells[x][y] = NULL;
+            state->grid.cells[x - direction][y] = NULL;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+              state->grid.cells[x][y + 1] == NULL)
+    {
+        state->grid.cells[x][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
+              state->grid.cells[x + direction][y + 1] == NULL)
+    {
+        state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
+              state->grid.cells[x - direction][y + 1] == NULL)
+    {
+        state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y) &&
+              state->grid.cells[x + direction][y] == NULL)
+    {
+        state->grid.cells[x + direction][y] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x + direction][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y) &&
+              state->grid.cells[x - direction][y] == NULL)
+    {
+        state->grid.cells[x - direction][y] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x - direction][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else {
+        state->grid.cells[x][y]->is_static = true;
+    }
+}
+
+static void update_virus(state_t* state, int32_t x, int32_t y)
+{
+    int32_t direction = (rand() > RAND_MAX / 2);
+
+    if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+        state->grid.cells[x][y + 1] != NULL &&
+       (state->grid.cells[x][y + 1]->material.type == SAND ||
+        state->grid.cells[x][y + 1]->material.type == WOOD))
+    {
+        if (rand() < RAND_MAX / 15) {
+            state->grid.cells[x][y + 1]->material.type = VIRUS;
+            state->grid.cells[x][y + 1]->material.color = color_virus;
+            state->grid.cells[x][y + 1]->last_update = state->time.tick;
+            state->grid.cells[x][y]->last_update = state->time.tick;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y - 1) &&
+             state->grid.cells[x][y - 1] != NULL &&
+            (state->grid.cells[x][y - 1]->material.type == SAND ||
+             state->grid.cells[x][y - 1]->material.type == WOOD))
+    {
+        if (rand() < RAND_MAX / 15) {
+            state->grid.cells[x][y - 1]->material.type = VIRUS;
+            state->grid.cells[x][y - 1]->material.color = color_virus;
+            state->grid.cells[x][y - 1]->last_update = state->time.tick;
+            state->grid.cells[x][y]->last_update = state->time.tick;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y) &&
+             state->grid.cells[x + direction][y] != NULL &&
+            (state->grid.cells[x + direction][y]->material.type == SAND ||
+             state->grid.cells[x + direction][y]->material.type == WOOD))
+    {
+        if (rand() < RAND_MAX / 15) {
+            state->grid.cells[x + direction][y]->material.type = VIRUS;
+            state->grid.cells[x + direction][y]->material.color = color_virus;
+            state->grid.cells[x + direction][y]->last_update = state->time.tick;
+            state->grid.cells[x][y]->last_update = state->time.tick;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y) &&
+             state->grid.cells[x - direction][y] != NULL &&
+            (state->grid.cells[x - direction][y]->material.type == SAND ||
+             state->grid.cells[x - direction][y]->material.type == WOOD))
+    {
+        if (rand() < RAND_MAX / 15) {
+            state->grid.cells[x - direction][y]->material.type = VIRUS;
+            state->grid.cells[x - direction][y]->material.color = color_virus;
+            state->grid.cells[x - direction][y]->last_update = state->time.tick;
+            state->grid.cells[x][y]->last_update = state->time.tick;
+            activate_neighbors(state, x, y);
+        }
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+              state->grid.cells[x][y + 1] == NULL)
+    {
+        state->grid.cells[x][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
+             state->grid.cells[x + direction][y + 1] == NULL)
+    {
+        state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y] = NULL;
+        state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
+             state->grid.cells[x - direction][y + 1] == NULL)
     {
         state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
         state->grid.cells[x][y] = NULL;
