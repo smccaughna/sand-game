@@ -159,11 +159,66 @@ static void update_acid(state_t* state, int32_t x, int32_t y)
 {
     int32_t direction = (rand() > RAND_MAX / 2) ? 1 : -1;
 
-    if (!check_out_of_bounds(&state->grid.rect, x, y - 1) &&
-         state->grid.cells[x][y - 1] != NULL &&
-         state->grid.cells[x][y - 1]->material.type != ACID &&
-         state->grid.cells[x][y - 1]->material.type != WATER &&
-         state->grid.cells[x][y - 1]->material.type != METAL)
+    if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+        state->grid.cells[x][y + 1] != NULL &&
+        state->grid.cells[x][y + 1]->material.type == WATER)
+    {
+        particle_t* water_p = state->grid.cells[x][y + 1];
+        state->grid.cells[x][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
+             state->grid.cells[x + direction][y + 1] != NULL &&
+             state->grid.cells[x + direction][y + 1]->material.type == WATER)
+    {
+        particle_t* water_p = state->grid.cells[x + direction][y + 1];
+        state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
+             state->grid.cells[x - direction][y + 1] != NULL &&
+             state->grid.cells[x - direction][y + 1]->material.type == WATER)
+    {
+        particle_t* water_p = state->grid.cells[x - direction][y + 1];
+        state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y) &&
+              state->grid.cells[x + direction][y] != NULL &&
+              state->grid.cells[x + direction][y]->material.type == WATER)
+    {
+        particle_t* water_p = state->grid.cells[x + direction][y];
+        state->grid.cells[x + direction][y] = state->grid.cells[x][y];
+        state->grid.cells[x + direction][y]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y) &&
+              state->grid.cells[x - direction][y] != NULL &&
+              state->grid.cells[x - direction][y]->material.type == WATER)
+    {
+        particle_t* water_p = state->grid.cells[x - direction][y];
+        state->grid.cells[x - direction][y] = state->grid.cells[x][y];
+        state->grid.cells[x - direction][y]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y - 1) &&
+              state->grid.cells[x][y - 1] != NULL &&
+              state->grid.cells[x][y - 1]->material.type != ACID &&
+              state->grid.cells[x][y - 1]->material.type != WATER &&
+              state->grid.cells[x][y - 1]->material.type != METAL)
     {
         if (rand() < RAND_MAX / 15) {
             free(state->grid.cells[x][y]);
@@ -262,12 +317,48 @@ static void update_acid(state_t* state, int32_t x, int32_t y)
 
 static void update_virus(state_t* state, int32_t x, int32_t y)
 {
-    int32_t direction = (rand() > RAND_MAX / 2);
+    int32_t direction = (rand() > RAND_MAX / 2) ? 1 : -1;
 
     if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
         state->grid.cells[x][y + 1] != NULL &&
-       (state->grid.cells[x][y + 1]->material.type == SAND ||
-        state->grid.cells[x][y + 1]->material.type == WOOD))
+        (state->grid.cells[x][y + 1]->material.type == WATER ||
+         state->grid.cells[x][y + 1]->material.type == ACID))
+    {
+        particle_t* water_p = state->grid.cells[x][y + 1];
+        state->grid.cells[x][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x + direction, y + 1) &&
+             state->grid.cells[x + direction][y + 1] != NULL &&
+             (state->grid.cells[x + direction][y + 1]->material.type == WATER ||
+              state->grid.cells[x + direction][y + 1]->material.type == ACID))
+    {
+        particle_t* water_p = state->grid.cells[x + direction][y + 1];
+        state->grid.cells[x + direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x + direction][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x - direction, y + 1) &&
+             state->grid.cells[x - direction][y + 1] != NULL &&
+             (state->grid.cells[x - direction][y + 1]->material.type == WATER ||
+              state->grid.cells[x - direction][y + 1]->material.type == ACID))
+    {
+        particle_t* water_p = state->grid.cells[x - direction][y + 1];
+        state->grid.cells[x - direction][y + 1] = state->grid.cells[x][y];
+        state->grid.cells[x - direction][y + 1]->last_update = state->time.tick;
+        state->grid.cells[x][y] = water_p;
+        state->grid.cells[x][y]->last_update = state->time.tick;
+        activate_neighbors(state, x, y);
+    }
+    else if (!check_out_of_bounds(&state->grid.rect, x, y + 1) &&
+              state->grid.cells[x][y + 1] != NULL &&
+             (state->grid.cells[x][y + 1]->material.type == SAND ||
+              state->grid.cells[x][y + 1]->material.type == WOOD))
     {
         if (rand() < RAND_MAX / 15) {
             state->grid.cells[x][y + 1]->material.type = VIRUS;
